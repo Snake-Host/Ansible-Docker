@@ -38,6 +38,9 @@
       ansible.builtin.copy:
         src: docker-compose.yaml
         dest: /home/wordpress/
+        mode: '0700'
+        owner: 'wordpress'
+        group: 'wordpress'
 
     - name: CREATE AND START SERVICES
       community.docker.docker_compose_v2:
