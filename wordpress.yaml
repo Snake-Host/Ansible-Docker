@@ -1,0 +1,49 @@
+---
+
+- name: SETTING UP THE SERVER FOR WORDPRESS
+  gather_facts: false
+  become: true
+  hosts: wordpress
+
+  tasks:
+    - name: UPDATE REPOSITORIES CACHE
+      ansible.builtin.apt:
+       update_cache: yes
+
+    - name: UPGRADE PACKAGES
+      ansible.builtin.apt:
+        upgrade: yes
+      notify: reboot_system
+
+    - name: INSTALL ALL NECESSARY PACKAGES
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - docker.io
+        - docker-compose-v2
+        - unattended-upgrades
+      notify: reboot_system
+
+    - meta: flush_handlers
+
+    - name: CREATING WORDPRESS USER
+      ansible.builtin.user:
+        name: wordpress
+        password: $6$Y9Rm5nRfsGicwA1N$kaQLOo/Nv6MCcpBGF1HRx4bbXeELaKcVkrbxklF12lWPOJCkq3iMb8VOuSwGEFG4bTQP5a/or/n0op1IrNc1k. # password: wordpress
+        groups: docker
+        shell: /bin/bash
+
+    - name: COPY THE NECESSARY FILES
+      ansible.builtin.copy:
+        src: docker-compose.yaml
+        dest: /home/wordpress/
+
+    - name: CREATE AND START SERVICES
+      community.docker.docker_compose_v2:
+        project_src: /home/wordpress
+
+  handlers:
+  - name: reboot_system
+    ansible.builtin.reboot:
+      reboot_timeout: 30
