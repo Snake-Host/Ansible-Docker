@@ -3,7 +3,7 @@
 - name: SETTING UP THE SERVER FOR WORDPRESS
   gather_facts: false
   become: true
-  hosts: wordpress
+  hosts: wordpress-srv
 
   tasks:
     - name: UPDATE REPOSITORIES CACHE
@@ -27,24 +27,22 @@
 
     - meta: flush_handlers
 
-    - name: CREATING WORDPRESS USER
+    - name: GRANTING DOCKER ACCESS TO USER SNAKE
       ansible.builtin.user:
-        name: wordpress
-        password: $6$Y9Rm5nRfsGicwA1N$kaQLOo/Nv6MCcpBGF1HRx4bbXeELaKcVkrbxklF12lWPOJCkq3iMb8VOuSwGEFG4bTQP5a/or/n0op1IrNc1k. # password: wordpress
+        name: snake
         groups: docker
-        shell: /bin/bash
 
     - name: COPY THE NECESSARY FILES
       ansible.builtin.copy:
         src: docker-compose.yaml
-        dest: /home/wordpress/
+        dest: /home/snake/
         mode: '0700'
-        owner: 'wordpress'
-        group: 'wordpress'
+        owner: 'snake'
+        group: 'snake'
 
     - name: CREATE AND START SERVICES
       community.docker.docker_compose_v2:
-        project_src: /home/wordpress
+        project_src: /home/snake/
 
   handlers:
   - name: reboot_system
