@@ -27,22 +27,22 @@
 
     - meta: flush_handlers
 
-    - name: GRANTING DOCKER ACCESS TO USER SNAKE
+    - name: GRANTING DOCKER ACCESS TO USER WORDPRESS
       ansible.builtin.user:
-        name: snake
+        name: wordpress
         groups: docker
 
     - name: COPY THE NECESSARY FILES
       ansible.builtin.copy:
         src: docker-compose.yaml
-        dest: /home/snake/
+        dest: /home/wordpress/
         mode: '0700'
-        owner: 'snake'
-        group: 'snake'
+        owner: 'wordpress'
+        group: 'wordpress'
 
-    - name: CREATE AND START SERVICES
+    - name: CREATE AND START SERVICES USING DOCKER COMPOSE
       community.docker.docker_compose_v2:
-        project_src: /home/snake/
+        project_src: /home/wordpress/
 
   handlers:
   - name: reboot_system
